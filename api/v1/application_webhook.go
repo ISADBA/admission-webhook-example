@@ -17,6 +17,8 @@ limitations under the License.
 package v1
 
 import (
+	"fmt"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -43,6 +45,10 @@ func (r *Application) Default() {
 	applicationlog.Info("default", "name", r.Name)
 
 	// TODO(user): fill in your defaulting logic.
+	if r.Spec.Deployment.Replicas == nil {
+		r.Spec.Deployment.Replicas = new(int32)
+		*r.Spec.Deployment.Replicas = 3
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
@@ -50,12 +56,20 @@ func (r *Application) Default() {
 
 var _ webhook.Validator = &Application{}
 
+// 添加自定义validate规则
+func (r *Application) validateApplication() error {
+	if *r.Spec.Deployment.Replicas > 10 {
+		return fmt.Errorf("replicas too many error")
+	}
+	return nil
+}
+
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *Application) ValidateCreate() error {
 	applicationlog.Info("validate create", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
-	return nil
+	return r.validateApplication()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
@@ -63,7 +77,7 @@ func (r *Application) ValidateUpdate(old runtime.Object) error {
 	applicationlog.Info("validate update", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
-	return nil
+	return r.validateApplication()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
@@ -71,5 +85,5 @@ func (r *Application) ValidateDelete() error {
 	applicationlog.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.
-	return nil
+	return r.validateApplication()
 }

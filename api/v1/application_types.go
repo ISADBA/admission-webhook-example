@@ -17,6 +17,7 @@ limitations under the License.
 package v1
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,7 +30,13 @@ type ApplicationSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Application. Edit application_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Foo string `json:"foo,omitempty"`
+
+	Deployment DeploymentTemplate `json:"deployment,omitempty"`
+}
+
+type DeploymentTemplate struct {
+	appsv1.DeploymentSpec `json:",inline"`
 }
 
 // ApplicationStatus defines the observed state of Application
